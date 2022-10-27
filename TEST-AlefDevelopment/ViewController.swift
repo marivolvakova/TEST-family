@@ -118,6 +118,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             textFieldNamesArray.insert("", at: textFields.count - 1)
             textFieldAgeArray.insert("", at: textFields.count - 1)
             tableView.insertRows(at: [IndexPath(row: textFields.count - 1, section: 0)], with: .automatic)
+            tableView.reloadData()
         }
         if textFields.count == 5 {
             addChildButton.isHidden = true
@@ -128,9 +129,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let alert = UIAlertController(title: "", message: nil, preferredStyle: .actionSheet)
         let alertClear = UIAlertAction(title: "Сбросить данные", style: .default) {_ in
             self.textFields.removeAll()
-            self.tableView.reloadData()
             self.nameTextField.text = ""
             self.ageTextField.text = ""
+            self.tableView.reloadData()
+            self.addChildButton.isHidden = false
         }
         let alertCancel = UIAlertAction(title: "Отмена", style: .cancel)
         alert.addAction(alertClear)
@@ -144,7 +146,22 @@ class ViewController: UIViewController, UITextFieldDelegate {
         textFieldNamesArray.remove(at: row)
         textFieldAgeArray.remove(at: row)
         tableView.deleteRows(at: [IndexPath(row: row, section: 0)], with: .automatic)
+        tableView.reloadData()
         addChildButton.isHidden = false
+    }
+    
+    @objc func ageTextfieldChanged(_ sender: UITextField) {
+        let newAge = sender.text
+        let rowTag = sender.tag
+        textFieldAgeArray[rowTag] = newAge ?? ""
+        tableView.reloadData()
+    }
+    
+    @objc func nameTextfieldChanged(_ sender: UITextField) {
+        let newAge = sender.text
+        let rowTag = sender.tag
+        textFieldNamesArray[rowTag] = newAge ?? ""
+        tableView.reloadData()
     }
     
     // MARK: - LIFECYCLE
@@ -232,6 +249,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             cell.chaildAgeTextField.text = textFieldAgeArray[indexPath.row]
             cell.chaildNameTextField.delegate = self
             cell.chaildAgeTextField.delegate = self
+            cell.chaildNameTextField.addTarget(self, action: #selector(nameTextfieldChanged), for: .editingChanged)
+            cell.chaildAgeTextField.addTarget(self, action: #selector(ageTextfieldChanged), for: .editingChanged)
             cell.chaildNameTextField.tag = indexPath.row
             cell.chaildAgeTextField.tag = indexPath.row
             cell.deleteChildButton.tag = indexPath.row
